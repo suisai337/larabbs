@@ -8,6 +8,16 @@ use Illuminate\Support\Facades\Auth;
 
 class UsersController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth', [
+            'except' => ['show', 'create', 'store']
+        ]);
+        $this->middleware('guest', [
+            'only' => ['create']
+        ]);
+    }
+
     public function create()
     {
         return view('users.create');
@@ -41,13 +51,28 @@ class UsersController extends Controller
         return redirect()->route('users.show', [$user]);
     }
 
+    /**
+     * @param User $user
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
     public function edit(User $user)
     {
+        $this->authorize('update', $user);
+
         return view('users.edit', compact('user'));
     }
 
+    /**
+     * @param Request $request
+     * @param User $user
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function update(Request $request, User $user)
     {
+        $this->authorize('update', $user);
         $this->validate($request, [
             'name' => 'required',
             'password' => 'required|confirmed|min:6'

@@ -7,6 +7,14 @@ use Illuminate\Support\Facades\Auth;
 
 class SessionsController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('guest', [
+            'only' => ['create']
+        ]);
+    }
+
     public function create()
     {
         return view('sessions.create');
@@ -28,9 +36,10 @@ class SessionsController extends Controller
             'email.max' => 'username max length is 255',
             'password.reqired' => 'password can not be null'
         ]);
-        if (Auth::attempt($data)) {
+        if (Auth::attempt($data, $request->has('remember'))) {
             session()->flash('success', 'welcome back ' . Auth::user()->name);
-            return redirect()->route('users.show', Auth::user());
+            $fallback = route('users.show', Auth::user());
+            return redirect()->intended($fallback);
         } else {
             session()->flash('danger', '很抱歉，您的邮箱和密码不匹配');
             return redirect()->back()->withInput();
