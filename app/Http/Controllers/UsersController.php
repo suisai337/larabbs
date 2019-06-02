@@ -94,4 +94,19 @@ class UsersController extends Controller
 
         return redirect()->route('users.show', $user->id);
     }
+
+    /**
+     * @param Request $request
+     * @param User $user
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function destroy(Request $request, User $user)
+    {
+        $this->authorize('destroy');
+        $user->delete();
+
+        session()->flash('success', 'delete success');
+        return back();
+    }
 }
