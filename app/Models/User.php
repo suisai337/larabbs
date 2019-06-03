@@ -2,6 +2,7 @@
 
 namespace App\Model;
 
+use App\Models\Status;
 use function foo\func;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -59,5 +60,10 @@ class User extends Authenticatable
             $user->activation_token = Str::random(30);
         });
 
+    }
+
+    public function statuses()
+    {
+        return $this->hasMany(Status::class);
     }
 }
