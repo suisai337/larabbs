@@ -71,4 +71,46 @@ class User extends Authenticatable
     {
         return $this->statuses()->orderByDesc('created_at');
     }
+
+    //  我被关注的用户(粉丝)
+    //  user_id 被关注的
+    //  follower_id 主动关注的
+    public function followers()
+    {
+        return
+            $this->belongsToMany
+            (User::class, 'followers', 'user_id', 'follower_id');
+    }
+
+    //  我主动关注的用户
+    public function followings()
+    {
+        return
+        $this->belongsToMany
+        (User::class, 'followers', 'follower_id', 'user_id');
+    }
+
+    //  关注用户
+    public function follow($userIds)
+    {
+        if (! is_array($userIds)) {
+            $userIds = compact('userIds');
+        }
+        $this->followings()->sync($userIds, false);
+    }
+
+    //  取消关注
+    public function unfollow($userIds)
+    {
+        if (! is_array($userIds)) {
+            $userIds = compact('userIds');
+        }
+        $this->followings()->detach($userIds);
+    }
+
+    //  判断是否被关注
+    public function isFollow($userId)
+    {
+        return $this->followings->contains($userId);
+    }
 }
